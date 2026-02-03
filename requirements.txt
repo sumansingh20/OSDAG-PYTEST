@@ -1,0 +1,19 @@
+# =============================================================================
+# Osdag Structural Engineering Dashboard - Dependencies
+# =============================================================================
+# Project: FOSSEE Osdag Screening Task 2026
+# Author: Suman Kumar
+# =============================================================================
+
+# Web Framework
+Flask>=2.3.0
+
+# Testing Framework
+pytest>=7.0.0
+pytest-cov>=4.0.0
+
+# Optional: Production WSGI Server
+# gunicorn>=21.0.0  # Uncomment for production deployment
+
+# Optional: Coverage reporting (recommended)
+pytest-cov>=4.0.0

@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Osdag Structural Engineering Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>🏗️ Osdag Structural Engineering Dashboard</h1>
+            <p class="subtitle">Structural Analysis per IS 800:2007</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Calculator Selection -->
+        <section class="card calculator-selection">
+            <h2>Select Calculation Type</h2>
+            <div class="calc-buttons">
+                <button class="calc-btn active" data-calc="factored_load">
+                    <span class="icon">⚖️</span>
+                    Factored Load
+                </button>
+                <button class="calc-btn" data-calc="safety_factor">
+                    <span class="icon">🛡️</span>
+                    Safety Factor
+                </button>
+                <button class="calc-btn" data-calc="utilization">
+                    <span class="icon">📊</span>
+                    Utilization Ratio
+                </button>
+                <button class="calc-btn" data-calc="moment_capacity">
+                    <span class="icon">🔄</span>
+                    Moment Capacity
+                </button>
+                <button class="calc-btn" data-calc="deflection">
+                    <span class="icon">📏</span>
+                    Deflection Check
+                </button>
+                <button class="calc-btn" data-calc="shear_capacity">
+                    <span class="icon">✂️</span>
+                    Shear Capacity
+                </button>
+                <button class="calc-btn" data-calc="material_properties">
+                    <span class="icon">🔩</span>
+                    Material Properties
+                </button>
+            </div>
+        </section>
+
+        <div class="content-grid">
+            <!-- Input Form Section -->
+            <section class="card input-section">
+                <h2>Input Parameters</h2>
+                <form id="calculationForm">
+                    <input type="hidden" name="calculation_type" id="calculation_type" value="factored_load">
+                    
+                    <!-- Factored Load Inputs -->
+                    <div class="form-group calc-inputs" id="factored_load_inputs">
+                        <div class="input-row">
+                            <label for="dead_load">Dead Load (kN)</label>
+                            <input type="number" name="dead_load" id="dead_load" step="0.01" min="0" value="100" required>
+                        </div>
+                        <div class="input-row">
+                            <label for="live_load">Live Load (kN)</label>
+                            <input type="number" name="live_load" id="live_load" step="0.01" min="0" value="50" required>
+                        </div>
+                        <div class="input-row">
+                            <label for="wind_load">Wind Load (kN)</label>
+                            <input type="number" name="wind_load" id="wind_load" step="0.01" min="0" value="0">
+                        </div>
+                        <div class="input-row">
+                            <label for="earthquake_load">Earthquake Load (kN)</label>
+                            <input type="number" name="earthquake_load" id="earthquake_load" step="0.01" min="0" value="0">
+                        </div>
+                        <div class="input-row">
+                            <label for="combination_type">Load Combination</label>
+                            <select name="combination_type" id="combination_type">
+                                <option value="normal">Normal (1.5DL + 1.5LL)</option>
+                                <option value="wind">Wind (1.2(DL + LL + WL))</option>
+                                <option value="seismic">Seismic (1.2(DL + LL + EQ))</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Safety Factor Inputs -->
+                    <div class="form-group calc-inputs hidden" id="safety_factor_inputs">
+                        <div class="input-row">
+                            <label for="applied_stress">Applied Stress (MPa)</label>
+                            <input type="number" name="applied_stress" id="applied_stress" step="0.01" min="0.01" value="100">
+                        </div>
+                        <div class="input-row">
+                            <label for="allowable_stress">Allowable Stress (MPa)</label>
+                            <input type="number" name="allowable_stress" id="allowable_stress" step="0.01" min="0.01" value="165">
+                        </div>
+                        <div class="input-row">
+                            <label for="min_safety_factor">Minimum Safety Factor</label>
+                            <input type="number" name="min_safety_factor" id="min_safety_factor" step="0.01" min="0.01" value="1.0">
+                        </div>
+                    </div>
+
+                    <!-- Utilization Ratio Inputs -->
+                    <div class="form-group calc-inputs hidden" id="utilization_inputs">
+                        <div class="input-row">
+                            <label for="applied_load">Applied Load (kN)</label>
+                            <input type="number" name="applied_load" id="applied_load" step="0.01" min="0" value="75">
+                        </div>
+                        <div class="input-row">
+                            <label for="section_capacity">Section Capacity (kN)</label>
+                            <input type="number" name="section_capacity" id="section_capacity" step="0.01" min="0.01" value="100">
+                        </div>
+                    </div>
+
+                    <!-- Moment Capacity Inputs -->
+                    <div class="form-group calc-inputs hidden" id="moment_capacity_inputs">
+                        <div class="input-row">
+                            <label for="yield_strength_moment">Yield Strength (MPa)</label>
+                            <input type="number" name="yield_strength" id="yield_strength_moment" step="0.01" min="0.01" value="250">
+                        </div>
+                        <div class="input-row">
+                            <label for="plastic_modulus">Plastic Modulus (mm³)</label>
+                            <input type="number" name="plastic_modulus" id="plastic_modulus" step="1" min="1" value="500000">
+                        </div>
+                    </div>
+
+                    <!-- Deflection Check Inputs -->
+                    <div class="form-group calc-inputs hidden" id="deflection_inputs">
+                        <div class="input-row">
+                            <label for="actual_deflection">Actual Deflection (mm)</label>
+                            <input type="number" name="actual_deflection" id="actual_deflection" step="0.01" min="0" value="15">
+                        </div>
+                        <div class="input-row">
+                            <label for="span_length">Span Length (mm)</label>
+                            <input type="number" name="span_length" id="span_length" step="1" min="1" value="6000">
+                        </div>
+                        <div class="input-row">
+                            <label for="deflection_limit">Deflection Limit (L/x)</label>
+                            <select name="deflection_limit" id="deflection_limit">
+                                <option value="240">L/240 (Industrial)</option>
+                                <option value="300" selected>L/300 (Normal)</option>
+                                <option value="360">L/360 (Sensitive Finishes)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Shear Capacity Inputs -->
+                    <div class="form-group calc-inputs hidden" id="shear_capacity_inputs">
+                        <div class="input-row">
+                            <label for="yield_strength_shear">Yield Strength (MPa)</label>
+                            <input type="number" name="yield_strength" id="yield_strength_shear" step="0.01" min="0.01" value="250">
+                        </div>
+                        <div class="input-row">
+                            <label for="shear_area">Shear Area (mm²)</label>
+                            <input type="number" name="shear_area" id="shear_area" step="1" min="1" value="2000">
+                        </div>
+                    </div>
+
+                    <!-- Material Properties Inputs -->
+                    <div class="form-group calc-inputs hidden" id="material_properties_inputs">
+                        <div class="input-row">
+                            <label for="steel_grade">Steel Grade</label>
+                            <select name="steel_grade" id="steel_grade">
+                                <option value="E250">E250 (Mild Steel)</option>
+                                <option value="E275">E275</option>
+                                <option value="E300">E300</option>
+                                <option value="E350">E350 (High Strength)</option>
+                                <option value="E410">E410</option>
+                                <option value="E450">E450</option>
+                                <option value="Fe410">Fe410 (Legacy)</option>
+                                <option value="Fe490">Fe490 (Legacy)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="submit-btn">Calculate</button>
+                </form>
+            </section>
+
+            <!-- Results Section -->
+            <section class="card results-section">
+                <h2>Calculation Results</h2>
+                <div id="results-container">
+                    <div class="no-results">
+                        <p>Enter parameters and click Calculate to see results</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Reference Information -->
+        <section class="card reference-section">
+            <h2>Reference Information</h2>
+            <div class="reference-grid">
+                <div class="reference-item">
+                    <h3>IS 800:2007 Load Factors</h3>
+                    <table class="ref-table">
+                        <tr><td>Dead Load (γ<sub>DL</sub>)</td><td>1.5</td></tr>
+                        <tr><td>Live Load (γ<sub>LL</sub>)</td><td>1.5</td></tr>
+                        <tr><td>Wind Load (γ<sub>WL</sub>)</td><td>1.5</td></tr>
+                        <tr><td>Earthquake (γ<sub>EQ</sub>)</td><td>1.5</td></tr>
+                    </table>
+                </div>
+                <div class="reference-item">
+                    <h3>Material Safety Factors</h3>
+                    <table class="ref-table">
+                        <tr><td>Yielding (γ<sub>m0</sub>)</td><td>1.10</td></tr>
+                        <tr><td>Ultimate (γ<sub>m1</sub>)</td><td>1.25</td></tr>
+                        <tr><td>Elastic Modulus</td><td>200,000 MPa</td></tr>
+                    </table>
+                </div>
+                <div class="reference-item">
+                    <h3>Deflection Limits</h3>
+                    <table class="ref-table">
+                        <tr><td>Industrial</td><td>L/240</td></tr>
+                        <tr><td>Normal</td><td>L/300</td></tr>
+                        <tr><td>Sensitive</td><td>L/360</td></tr>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Osdag Structural Dashboard | FOSSEE Screening Task 2026 | Developed by Suman Kumar</p>
+        <p>Based on IS 800:2007 - Indian Standard for General Construction in Steel</p>
+    </footer>
+
+    <script>
+        // Calculator button selection
+        const calcButtons = document.querySelectorAll('.calc-btn');
+        const calcInputs = document.querySelectorAll('.calc-inputs');
+        const calcTypeInput = document.getElementById('calculation_type');
+
+        calcButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Update active button
+                calcButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                // Update calculation type
+                const calcType = btn.dataset.calc;
+                calcTypeInput.value = calcType;
+
+                // Show relevant inputs
+                calcInputs.forEach(input => {
+                    input.classList.add('hidden');
+                });
+                document.getElementById(`${calcType}_inputs`).classList.remove('hidden');
+
+                // Clear previous results
+                document.getElementById('results-container').innerHTML = `
+                    <div class="no-results">
+                        <p>Enter parameters and click Calculate to see results</p>
+                    </div>
+                `;
+            });
+        });
+
+        // Form submission
+        document.getElementById('calculationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const resultsContainer = document.getElementById('results-container');
+            
+            // Show loading
+            resultsContainer.innerHTML = '<div class="loading">Calculating...</div>';
+
+            try {
+                const response = await fetch('/calculate', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    displayResults(data.calculation_type, data.result);
+                } else {
+                    resultsContainer.innerHTML = `
+                        <div class="error-message">
+                            <strong>Error:</strong> ${data.error}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultsContainer.innerHTML = `
+                    <div class="error-message">
+                        <strong>Error:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        });
+
+        // Display results based on calculation type
+        function displayResults(calcType, result) {
+            const container = document.getElementById('results-container');
+            let html = '';
+
+            switch(calcType) {
+                case 'factored_load':
+                    html = `
+                        <div class="result-card">
+                            <h3>Factored Load Results</h3>
+                            <div class="result-item primary">
+                                <span class="label">Factored Load:</span>
+                                <span class="value">${result.factored_load} ${result.unit}</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="label">Combination Type:</span>
+                                <span class="value">${result.combination_type.toUpperCase()}</span>
+                            </div>
+                            <h4>Load Components</h4>
+                            ${Object.entries(result.components).map(([key, val]) => `
+                                <div class="result-item">
+                                    <span class="label">${formatLabel(key)}:</span>
+                                    <span class="value">${val}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    break;
+
+                case 'safety_factor':
+                    html = `
+                        <div class="result-card ${result.is_safe ? 'safe' : 'unsafe'}">
+                            <h3>Safety Factor Results</h3>
+                            <div class="status-badge ${result.is_safe ? 'safe' : 'unsafe'}">
+                                ${result.status}
+                            </div>
+                            <div class="result-item primary">
+                                <span class="label">Safety Factor:</span>
+                                <span class="value">${result.safety_factor}</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="label">Margin:</span>
+                                <span class="value">${result.margin}%</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="label">Applied Stress:</span>
+                                <span class="value">${result.applied_stress} MPa</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="label">Allowable Stress:</span>
+                                <span class="value">${result.allowable_stress} MPa</span>
+                            </div>
+                        </div>
+                    `;
+                    break;
+
+                case 'utilization':
+                    html = `
+                        <div class="result-card ${result.is_adequate ? 'safe' : 'unsafe'}">
+                            <h3>Utilization Ratio Results</h3>
+                            <div class="status-badge ${result.is_adequate ? 'safe' : 'unsafe'}">
+                                ${result.status}
+                            </div>
+                            <div class="result-item primary">
+                                <span class="label">Utilization Ratio:</span>
+                                <span class="value">${result.utilization_ratio}</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="label">Utilization:</span>
+                                <span class="value">${result.utilization_percent}%</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="label">Reserve Capacity:</span>
+                                <span class="value">${result.reserve_capacity}%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: ${Math.min(result.utilization_percent, 100)}%"></div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+
+                case 'moment_capacity':
+                    html = `
+                        <div class="result-card">
+                            <h3>Moment Capacity Results</h3>
+                            <div class="result-item primary">
+                                <span class="label">Moment Capacity:</span>
+                                <span class="value">${result.moment_capacity_knm} ${result.unit}</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="label">Yield Strength:</span>
+                                <span class="value">${result.yield_strength} MPa</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="label">Plastic Modulus:</span>
+                                <span class="value">${result.plastic_modulus.toLocaleString()} mm³</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="label">γm0:</span>
+                                <span class="value">${result.gamma_m0}</span>
+                            </div>
+                        </div>
+                    `;
+                    break;
+
+                case 'deflection':
+                    html = `
+                        <div class="result-card ${result.is_serviceable ? 'safe' : 'unsafe'}">
+                            <h3>Deflection Check Results</h3>
+                            <div class="status-badge ${result.is_serviceable ? 'safe' : 'unsafe'}">
+                                ${result.status}
+                            </div>
+                            <div class="result-item primary">
+                                <span class="label">Allowable Deflection:</span>
+                                <span class="value">${result.allowable_deflection} ${result.unit}</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="label">Actual Deflection:</span>
+                                <span class="value">${result.actual_deflection} mm</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="label">Utilization:</span>
+                                <span class="value">${result.utilization_percent}%</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="label">Limit Ratio:</span>
+                                <span class="value">${result.limit_ratio}</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress ${result.is_serviceable ? '' : 'over'}" style="width: ${Math.min(result.utilization_percent, 100)}%"></div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+
+                case 'shear_capacity':
+                    html = `
+                        <div class="result-card">
+                            <h3>Shear Capacity Results</h3>
+                            <div class="result-item primary">
+                                <span class="label">Shear Capacity:</span>
+                                <span class="value">${result.shear_capacity_kn} ${result.unit}</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="label">Yield Strength:</span>
+                                <span class="value">${result.yield_strength} MPa</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="label">Shear Area:</span>
+                                <span class="value">${result.shear_area.toLocaleString()} mm²</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="label">γm0:</span>
+                                <span class="value">${result.gamma_m0}</span>
+                            </div>
+                        </div>
+                    `;
+                    break;
+
+                case 'material_properties':
+                    html = `
+                        <div class="result-card">
+                            <h3>Material Properties: ${result.grade}</h3>
+                            <p class="description">${result.description}</p>
+                            <div class="result-item">
+                                <span class="label">Yield Strength (fy):</span>
+                                <span class="value">${result.yield_strength} MPa</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="label">Ultimate Strength (fu):</span>
+                                <span class="value">${result.ultimate_strength} MPa</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="label">Elongation:</span>
+                                <span class="value">${result.elongation}%</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="label">Elastic Modulus:</span>
+                                <span class="value">${result.elastic_modulus.toLocaleString()} MPa</span>
+                            </div>
+                        </div>
+                    `;
+                    break;
+            }
+
+            container.innerHTML = html;
+        }
+
+        // Format label text
+        function formatLabel(key) {
+            return key.replace(/_/g, ' ')
+                     .replace(/\b\w/g, l => l.toUpperCase());
+        }
+    </script>
+</body>
+</html>

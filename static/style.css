@@ -1,0 +1,436 @@
+/* ==========================================================================
+   Osdag Structural Engineering Dashboard - Stylesheet
+   Author: Suman Kumar
+   Project: FOSSEE Osdag Screening Task 2026
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   CSS Variables and Reset
+   -------------------------------------------------------------------------- */
+:root {
+    --primary-color: #1a73e8;
+    --primary-dark: #1557b0;
+    --secondary-color: #34a853;
+    --danger-color: #ea4335;
+    --warning-color: #fbbc04;
+    --background-color: #f5f7fa;
+    --card-background: #ffffff;
+    --text-primary: #202124;
+    --text-secondary: #5f6368;
+    --border-color: #dadce0;
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.15);
+    --radius: 8px;
+    --transition: all 0.3s ease;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+/* --------------------------------------------------------------------------
+   Header Styles
+   -------------------------------------------------------------------------- */
+header {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: var(--shadow);
+}
+
+.header-content h1 {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    opacity: 0.9;
+    font-size: 1.1rem;
+}
+
+/* --------------------------------------------------------------------------
+   Main Container
+   -------------------------------------------------------------------------- */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* --------------------------------------------------------------------------
+   Card Styles
+   -------------------------------------------------------------------------- */
+.card {
+    background: var(--card-background);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    transition: var(--transition);
+}
+
+.card:hover {
+    box-shadow: var(--shadow-hover);
+}
+
+.card h2 {
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+/* --------------------------------------------------------------------------
+   Calculator Selection Buttons
+   -------------------------------------------------------------------------- */
+.calculator-selection {
+    background: linear-gradient(to right, #f8f9fa, #ffffff);
+}
+
+.calc-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: center;
+}
+
+.calc-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    background: var(--card-background);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    min-width: 120px;
+}
+
+.calc-btn .icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.calc-btn:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+.calc-btn.active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+/* --------------------------------------------------------------------------
+   Content Grid Layout
+   -------------------------------------------------------------------------- */
+.content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .content-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   Form Styles
+   -------------------------------------------------------------------------- */
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group.hidden {
+    display: none;
+}
+
+.input-row {
+    margin-bottom: 1rem;
+}
+
+.input-row label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.input-row input,
+.input-row select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius);
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+.input-row input:focus,
+.input-row select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 1rem;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    margin-top: 1rem;
+}
+
+.submit-btn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+}
+
+/* --------------------------------------------------------------------------
+   Results Section
+   -------------------------------------------------------------------------- */
+.results-section {
+    min-height: 300px;
+}
+
+.no-results {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+.result-card {
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    background: #f8f9fa;
+}
+
+.result-card.safe {
+    border-left: 4px solid var(--secondary-color);
+}
+
+.result-card.unsafe {
+    border-left: 4px solid var(--danger-color);
+}
+
+.result-card h3 {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.result-card h4 {
+    color: var(--text-secondary);
+    margin: 1rem 0 0.5rem;
+    font-size: 0.95rem;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.status-badge.safe {
+    background: #e6f4ea;
+    color: var(--secondary-color);
+}
+
+.status-badge.unsafe {
+    background: #fce8e6;
+    color: var(--danger-color);
+}
+
+.result-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.result-item:last-child {
+    border-bottom: none;
+}
+
+.result-item.primary {
+    background: white;
+    padding: 1rem;
+    border-radius: var(--radius);
+    margin-bottom: 0.5rem;
+}
+
+.result-item .label {
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.result-item .value {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.description {
+    color: var(--text-secondary);
+    font-style: italic;
+    margin-bottom: 1rem;
+}
+
+/* --------------------------------------------------------------------------
+   Progress Bar
+   -------------------------------------------------------------------------- */
+.progress-bar {
+    height: 8px;
+    background: #e8eaed;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 1rem;
+}
+
+.progress-bar .progress {
+    height: 100%;
+    background: var(--secondary-color);
+    border-radius: 4px;
+    transition: width 0.5s ease;
+}
+
+.progress-bar .progress.over {
+    background: var(--danger-color);
+}
+
+/* --------------------------------------------------------------------------
+   Error Messages
+   -------------------------------------------------------------------------- */
+.error-message {
+    background: #fce8e6;
+    color: var(--danger-color);
+    padding: 1rem;
+    border-radius: var(--radius);
+    border-left: 4px solid var(--danger-color);
+}
+
+/* --------------------------------------------------------------------------
+   Reference Section
+   -------------------------------------------------------------------------- */
+.reference-section {
+    background: linear-gradient(to right, #e8f0fe, #f8f9fa);
+}
+
+.reference-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.reference-item {
+    background: white;
+    padding: 1rem;
+    border-radius: var(--radius);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.reference-item h3 {
+    color: var(--primary-color);
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.ref-table {
+    width: 100%;
+    font-size: 0.85rem;
+}
+
+.ref-table td {
+    padding: 0.4rem 0;
+}
+
+.ref-table td:last-child {
+    text-align: right;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+/* --------------------------------------------------------------------------
+   Footer
+   -------------------------------------------------------------------------- */
+footer {
+    background: var(--text-primary);
+    color: white;
+    text-align: center;
+    padding: 1.5rem;
+    margin-top: 2rem;
+}
+
+footer p {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    margin: 0.25rem 0;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive Adjustments
+   -------------------------------------------------------------------------- */
+@media (max-width: 600px) {
+    .container {
+        padding: 1rem;
+    }
+    
+    .header-content h1 {
+        font-size: 1.5rem;
+    }
+    
+    .calc-btn {
+        min-width: 100px;
+        padding: 0.75rem;
+        font-size: 0.8rem;
+    }
+    
+    .calc-btn .icon {
+        font-size: 1.2rem;
+    }
+}

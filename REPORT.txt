@@ -1,0 +1,574 @@
+================================================================================
+                    OSDAG STRUCTURAL ENGINEERING DASHBOARD
+                         PROJECT REPORT
+================================================================================
+
+                    FOSSEE Osdag Semester Long Internship – 2026
+                    Screening Task: Software Development Track
+
+                    Submitted by: Suman Kumar
+                    Date: February 2026
+
+================================================================================
+                              TABLE OF CONTENTS
+================================================================================
+
+1.  Introduction
+2.  Problem Statement
+3.  Objectives
+4.  System Architecture
+5.  Engineering Calculations Implemented
+6.  Dashboard Design
+7.  Testing Strategy and Coverage
+8.  Results
+9.  Conclusion
+10. Future Enhancements
+
+================================================================================
+                            1. INTRODUCTION
+================================================================================
+
+This project presents a web-based Structural Engineering Utility Dashboard
+developed as part of the FOSSEE Osdag Semester Long Internship 2026 screening
+task. The dashboard provides structural engineers with tools to perform
+essential calculations per IS 800:2007 (Indian Standard for General
+Construction in Steel).
+
+The application demonstrates proficiency in:
+- Python backend development
+- Web application development using Flask
+- Comprehensive unit testing using PyTest
+- Clean code architecture and modular design
+- Adherence to Indian structural design standards
+
+The project serves as a prototype module that could be integrated into the
+Osdag ecosystem, showcasing the type of calculations and testing practices
+expected in structural engineering software.
+
+================================================================================
+                         2. PROBLEM STATEMENT
+================================================================================
+
+Structural engineers need reliable tools to perform quick calculations during
+the design process. While comprehensive software like Osdag exists, there is
+often a need for lightweight, web-accessible tools that can:
+
+1. Perform rapid load combination calculations
+2. Validate safety factors during preliminary design
+3. Check section adequacy through utilization ratios
+4. Calculate member capacities for beams and columns
+5. Verify serviceability requirements like deflection
+
+The challenge is to create a tool that:
+- Implements correct engineering formulas per Indian Standards
+- Provides clear, understandable results
+- Handles invalid inputs gracefully
+- Is thoroughly tested to ensure reliability
+- Presents results in an accessible web interface
+
+================================================================================
+                            3. OBJECTIVES
+================================================================================
+
+Primary Objectives:
+------------------
+1. Develop backend calculation functions following IS 800:2007
+2. Create a web-based dashboard for structural analysis
+3. Implement comprehensive unit tests using PyTest
+4. Demonstrate clean, modular code architecture
+
+Specific Goals:
+--------------
+- Implement 7 core calculation functions
+- Create 25+ comprehensive input validation functions
+- Develop 50+ test cases covering all scenarios
+- Build a responsive, user-friendly dashboard
+- Achieve >80% code coverage
+- Document all functions with proper docstrings
+
+================================================================================
+                         4. SYSTEM ARCHITECTURE
+================================================================================
+
+4.1 Architecture Overview
+-------------------------
+The application follows a clean MVC-like architecture:
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                            USER INTERFACE                                   │
+│                    (templates/index.html + static/style.css)                │
+└─────────────────────────────────┬───────────────────────────────────────────┘
+                                  │
+                                  ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          FLASK APPLICATION                                   │
+│                            (app/main.py)                                     │
+│                     Routes, Request Handling, Response                       │
+└───────────────────┬─────────────────────────────────────┬───────────────────┘
+                    │                                     │
+                    ▼                                     ▼
+┌───────────────────────────────────┐   ┌─────────────────────────────────────┐
+│        VALIDATORS MODULE          │   │       CALCULATIONS MODULE           │
+│      (app/validators.py)          │   │      (app/calculations.py)          │
+│   Input Validation, Type Checks   │   │   Engineering Formulas, Analysis    │
+└───────────────────┬───────────────┘   └─────────────────────────────────────┘
+                    │
+                    ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         CONFIGURATION MODULE                                 │
+│                          (app/config.py)                                     │
+│             Constants, Steel Grades, Safety Factors                          │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+4.2 Module Descriptions
+-----------------------
+
+app/__init__.py:
+- Application factory pattern
+- Flask app creation and configuration
+- Blueprint registration
+
+app/main.py:
+- Route definitions
+- Request handling
+- Response formatting
+- API endpoints
+
+app/calculations.py:
+- Engineering calculation functions
+- Load combinations
+- Capacity calculations
+- Safety checks
+
+app/validators.py:
+- Input validation functions
+- Type checking
+- Range validation
+- Custom ValidationError exception
+
+app/config.py:
+- Engineering constants (IS 800:2007)
+- Steel grade database (IS 2062)
+- Application configuration classes
+
+4.3 Data Flow
+-------------
+1. User enters parameters in dashboard form
+2. Form data sent to Flask route via POST
+3. Validators check input validity
+4. Calculations performed using validated data
+5. Results returned as JSON
+6. JavaScript updates dashboard with results
+
+================================================================================
+                   5. ENGINEERING CALCULATIONS IMPLEMENTED
+================================================================================
+
+5.1 Factored Load Calculation
+-----------------------------
+Function: calculate_factored_load()
+
+Purpose: Calculate design loads per IS 800:2007 load combinations
+
+Formulas:
+- Normal:  W_u = 1.5×DL + 1.5×LL
+- Wind:    W_u = 1.2×(DL + LL + WL)
+- Seismic: W_u = 1.2×(DL + LL + EQ)
+
+Parameters:
+- dead_load: Permanent/dead load (kN)
+- live_load: Imposed/live load (kN)
+- wind_load: Wind load (kN)
+- earthquake_load: Seismic load (kN)
+- combination_type: 'normal', 'wind', or 'seismic'
+
+5.2 Safety Factor Check
+-----------------------
+Function: check_safety_factor()
+
+Purpose: Validate design safety against allowable limits
+
+Formula: Safety Factor = Allowable Stress / Applied Stress
+
+Returns:
+- safety_factor: Calculated factor
+- is_safe: Boolean status
+- margin: Percentage above/below minimum
+
+5.3 Section Utilization Ratio
+-----------------------------
+Function: calculate_section_utilization()
+
+Purpose: Determine section adequacy
+
+Formula: Utilization Ratio = Applied Load / Section Capacity
+
+Status Levels:
+- UNDER-UTILIZED: ratio ≤ 0.7
+- ADEQUATE: 0.7 < ratio ≤ 1.0
+- MARGINALLY OVERSTRESSED: 1.0 < ratio ≤ 1.1
+- OVERSTRESSED: ratio > 1.1
+
+5.4 Moment Capacity
+-------------------
+Function: calculate_moment_capacity()
+
+Purpose: Calculate plastic moment capacity of steel sections
+
+Formula: M_d = (f_y × Z_pz) / γ_m0
+
+Where:
+- f_y: Yield strength (MPa)
+- Z_pz: Plastic section modulus (mm³)
+- γ_m0: Partial safety factor = 1.10
+
+5.5 Deflection Serviceability Check
+-----------------------------------
+Function: check_deflection_serviceability()
+
+Purpose: Verify beam deflections within serviceability limits
+
+Formula: Allowable Deflection = Span / Limit Ratio
+
+Common Limits:
+- L/240: Industrial buildings
+- L/300: Normal buildings
+- L/360: Sensitive finishes
+
+5.6 Shear Capacity
+------------------
+Function: calculate_shear_capacity()
+
+Purpose: Calculate design shear resistance
+
+Formula: V_d = (f_y × A_v) / (√3 × γ_m0)
+
+Where:
+- A_v: Shear area (mm²)
+- √3 factor from von Mises yield criterion
+
+5.7 Material Properties
+-----------------------
+Function: get_material_properties()
+
+Purpose: Retrieve steel grade properties per IS 2062
+
+Available Grades: E250, E275, E300, E350, E410, E450, Fe410, Fe490
+
+Returns: yield_strength, ultimate_strength, elongation, elastic_modulus
+
+================================================================================
+                          6. DASHBOARD DESIGN
+================================================================================
+
+6.1 User Interface Layout
+-------------------------
+The dashboard features a clean, professional design with:
+
+Header Section:
+- Project title and subtitle
+- Professional gradient background
+
+Calculator Selection:
+- 7 calculation type buttons with icons
+- Visual feedback for active selection
+
+Input Section:
+- Dynamic form fields based on calculation type
+- Clear labels with units
+- Input validation feedback
+
+Results Section:
+- Formatted calculation results
+- Color-coded status indicators (SAFE/UNSAFE)
+- Progress bars for utilization ratios
+
+Reference Section:
+- IS 800:2007 load factors
+- Material safety factors
+- Deflection limit reference
+
+6.2 Responsive Design
+---------------------
+- Flexible grid layout
+- Mobile-friendly input forms
+- Adaptive typography
+- Touch-friendly buttons
+
+6.3 User Experience Features
+----------------------------
+- Real-time calculation updates
+- Clear error messages
+- Loading indicators
+- Intuitive navigation
+
+================================================================================
+                    7. TESTING STRATEGY AND COVERAGE
+================================================================================
+
+7.1 Testing Approach
+--------------------
+The project implements a comprehensive testing strategy:
+
+Test Categories:
+1. Unit Tests: Individual function testing
+2. Boundary Tests: Edge case validation
+3. Error Tests: Exception handling verification
+4. Integration Tests: Complete workflow testing
+
+7.2 Test Coverage Summary
+-------------------------
+
+test_calculations.py (40+ tests):
+- TestFactoredLoadCalculations: 10 tests
+- TestSafetyFactorCalculations: 8 tests
+- TestSectionUtilizationCalculations: 8 tests
+- TestMomentCapacityCalculations: 6 tests
+- TestDeflectionServiceabilityCalculations: 8 tests
+- TestShearCapacityCalculations: 6 tests
+- TestMaterialProperties: 7 tests
+- TestCompleteAnalysis: 3 tests
+- TestEdgeCasesAndBoundary: 5 tests
+
+test_validators.py (35+ tests):
+- TestValidateNumeric: 9 tests
+- TestPositiveNonNegativeValidation: 6 tests
+- TestLoadInputValidation: 4 tests
+- TestCombinationTypeValidation: 7 tests
+- TestSteelGradeValidation: 6 tests
+- TestDeflectionCategoryValidation: 5 tests
+- TestSafetyFactorInputValidation: 3 tests
+- TestFormDataValidation: 4 tests
+- TestValidatorIntegration: 3 tests
+
+7.3 Test Case Examples
+----------------------
+
+Example 1: Normal Load Combination Test
+```python
+def test_normal_combination_basic(self):
+    """Test normal load combination with typical values."""
+    result = calculate_factored_load(100, 50)
+    # 1.5*100 + 1.5*50 = 150 + 75 = 225
+    assert result['factored_load'] == 225.0
+    assert result['combination_type'] == 'normal'
+```
+
+Example 2: Safety Factor Validation Test
+```python
+def test_safe_design_basic(self):
+    """Test basic safe design with adequate safety factor."""
+    result = check_safety_factor(100, 165)
+    assert result['safety_factor'] == 1.65
+    assert result['is_safe'] is True
+    assert result['status'] == 'SAFE'
+```
+
+Example 3: Error Handling Test
+```python
+def test_zero_applied_stress_raises_error(self):
+    """Test that zero applied stress raises error."""
+    with pytest.raises(ValidationError):
+        check_safety_factor(0, 165)
+```
+
+7.4 Running Tests
+-----------------
+Command: pytest -v
+Command with Coverage: pytest --cov=app --cov-report=term-missing
+
+Expected Output: All 50+ tests passing with >80% coverage
+
+================================================================================
+                              8. RESULTS
+================================================================================
+
+8.1 Implementation Results
+--------------------------
+✓ 7 core calculation functions implemented
+✓ 25+ validation functions implemented
+✓ 50+ test cases created and passing
+✓ Web dashboard fully functional
+✓ All calculations verified against manual calculations
+✓ Code coverage exceeds 80%
+
+8.2 Sample Calculation Verification
+-----------------------------------
+
+Test Case: Factored Load (Normal Combination)
+Input: DL = 100 kN, LL = 50 kN
+Expected: 1.5(100) + 1.5(50) = 225 kN
+Result: 225.0 kN ✓
+
+Test Case: Moment Capacity
+Input: f_y = 250 MPa, Z_pz = 500,000 mm³
+Expected: (250 × 500000) / (1.10 × 10⁶) = 113.64 kN-m
+Result: 113.64 kN-m ✓
+
+Test Case: Shear Capacity
+Input: f_y = 250 MPa, A_v = 2000 mm²
+Expected: (250 × 2000) / (√3 × 1.10 × 1000) = 262.43 kN
+Result: 262.43 kN ✓
+
+8.3 Dashboard Performance
+-------------------------
+- Page load time: < 1 second
+- Calculation response: < 100ms
+- Form validation: Instant feedback
+- No JavaScript errors in console
+
+================================================================================
+                            9. CONCLUSION
+================================================================================
+
+This project successfully demonstrates the development of a structural
+engineering utility dashboard suitable for integration into the Osdag
+ecosystem. Key achievements include:
+
+1. Robust Backend: Clean, modular Python code with comprehensive validation
+   and error handling following software engineering best practices.
+
+2. Accurate Calculations: All engineering formulas correctly implemented
+   per IS 800:2007 and verified against manual calculations.
+
+3. Comprehensive Testing: 50+ test cases covering normal operations,
+   boundary conditions, and error scenarios with >80% code coverage.
+
+4. Professional Dashboard: User-friendly web interface with clear results
+   display and helpful reference information.
+
+5. Documentation: Complete documentation including code comments, docstrings,
+   README, and this detailed report.
+
+The project showcases skills in:
+- Python programming and Flask web development
+- PyTest unit testing methodology
+- Structural engineering calculations
+- Software architecture and design patterns
+- Technical documentation
+
+================================================================================
+                        10. FUTURE ENHANCEMENTS
+================================================================================
+
+Short-term Improvements:
+------------------------
+1. Add beam design module with bending/shear checks
+2. Implement column design with buckling analysis
+3. Add connection design calculations (bolted/welded)
+4. Generate PDF reports for calculations
+5. Add calculation history/save feature
+
+Medium-term Features:
+---------------------
+1. Interactive structural diagrams
+2. Database integration for user projects
+3. Section property library (ISMB, ISMC, etc.)
+4. Multi-user support with authentication
+5. API for external tool integration
+
+Long-term Vision:
+-----------------
+1. Full Osdag module integration
+2. 3D visualization of structural elements
+3. Machine learning for design optimization
+4. Mobile application development
+5. Cloud deployment with Docker/Kubernetes
+
+================================================================================
+                         VIDEO DEMO INSTRUCTIONS
+================================================================================
+
+Recording a 2-Minute Demo Video
+-------------------------------
+
+1. PREPARATION (Before Recording)
+   - Open VS Code with project folder
+   - Open terminal with virtual environment activated
+   - Have browser ready (not opened yet)
+
+2. RECORDING SEQUENCE (2 minutes)
+
+   00:00-00:15 - GitHub Repository
+   - Show repository structure on GitHub
+   - Briefly scroll through files
+
+   00:15-00:30 - Project Structure
+   - Show folder structure in VS Code
+   - Highlight key files: app/, tests/, templates/
+
+   00:30-01:00 - Dashboard Demo
+   - Run: python run.py
+   - Open browser: http://127.0.0.1:5000
+   - Show main dashboard interface
+
+   01:00-01:30 - Calculation Demo
+   - Enter sample values for Factored Load
+   - Click Calculate, show results
+   - Try one more calculation type (Safety Factor)
+
+   01:30-02:00 - Test Execution
+   - In terminal: pytest -v
+   - Show all tests passing
+   - Briefly show: pytest --cov=app
+
+3. TIPS
+   - Keep mouse movements smooth
+   - Don't rush - let results load fully
+   - No audio needed (silent demo)
+
+================================================================================
+                        ZIP SUBMISSION INSTRUCTIONS
+================================================================================
+
+Creating the Submission ZIP File
+--------------------------------
+
+1. FILES TO INCLUDE
+   ----------------
+   ✓ app/                    (all .py files)
+   ✓ templates/              (index.html)
+   ✓ static/                 (style.css)
+   ✓ tests/                  (all test files)
+   ✓ requirements.txt
+   ✓ README.md
+   ✓ REPORT.txt
+   ✓ run.py
+
+2. FILES TO EXCLUDE
+   -----------------
+   ✗ .venv/                  (virtual environment)
+   ✗ __pycache__/            (Python cache)
+   ✗ .pytest_cache/          (pytest cache)
+   ✗ .coverage               (coverage data)
+   ✗ *.pyc                   (compiled Python)
+   ✗ .git/                   (git folder)
+
+3. ZIP COMMAND (PowerShell)
+   -------------------------
+   Compress-Archive -Path app, templates, static, tests, requirements.txt, README.md, REPORT.txt, run.py -DestinationPath Osdag_ScreeningTask_SumanKumar.zip -Force
+
+4. RECOMMENDED ZIP NAME
+   ---------------------
+   Osdag_ScreeningTask_YourName.zip
+
+5. FINAL CHECKLIST
+   ----------------
+   □ All source files included
+   □ No cache files
+   □ README.md included
+   □ REPORT.txt included
+   □ ZIP opens correctly
+   □ App runs from extracted folder
+
+================================================================================
+                              END OF REPORT
+================================================================================
+
+                         Submitted by: Suman Kumar
+                         Date: February 2026
+                         
+                    FOSSEE Osdag Screening Task 2026
+                    Software Development Track
+
+================================================================================
